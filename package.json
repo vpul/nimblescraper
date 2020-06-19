@@ -1,0 +1,24 @@
+{
+  "name": "nimblescraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vpul/nimblescraper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vpul/nimblescraper/issues"
+  },
+  "homepage": "https://github.com/vpul/nimblescraper#readme",
+  "devDependencies": {
+    "eslint": "^7.3.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.21.2"
+  }
+}
