@@ -1,5 +1,7 @@
 {
-  "name": "nimblescraper",
-  "version": 2,
-  "env": {}
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/", "dest": "/api" },
+    { "src": "/(.*)", "status": 404, "dest": "/api/404.js" }
+  ]
 }

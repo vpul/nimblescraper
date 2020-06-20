@@ -1,62 +1,84 @@
-// const createError = require('http-errors')
-// const status = require('statuses')
+const createError = require('http-errors');
+const axios = require('axios');
+const Sentry = require('@sentry/node');
 const metascraper = require('metascraper')([
-  // require('metascraper-soundcloud')(),
+  require('metascraper-soundcloud')(),
   require('metascraper-author')(),
   require('metascraper-date')(),
   require('metascraper-description')(),
-  // require('metascraper-image')(),
-  // require('metascraper-logo')(),
+  require('metascraper-image')(),
+  require('metascraper-logo')(),
   require('metascraper-clearbit')(),
-  // require('metascraper-publisher')(),
-  // require('metascraper-title')(),
-  // require('metascraper-url')(),
-  // require('./metascraper-readability-modified')(),
-  // require('metascraper-publisher')(),
-  // require('metascraper-amazon')(),
-  // require('metascraper-audio')(),
-  // require('metascraper-lang')(),
-  // require('metascraper-logo-favicon')(),
+  require('metascraper-publisher')(),
+  require('metascraper-title')(),
+  require('metascraper-url')(),
+  require('./metascraper-readability-modified')(),
+  require('metascraper-publisher')(),
+  require('metascraper-amazon')(),
+  require('metascraper-audio')(),
+  require('metascraper-lang')(),
+  require('metascraper-logo-favicon')(),
   // require('metascraper-media-provider')(),
-  // require('metascraper-uol')(),
-  // require('metascraper-spotify')(),
-  // require('metascraper-video')(),
-  // require('metascraper-youtube')(),
-  // require('metascraper-iframe')(),
+  require('metascraper-uol')(),
+  require('metascraper-spotify')(),
+  require('metascraper-video')(),
+  require('metascraper-youtube')(),
+  require('metascraper-iframe')(),
 ]);
 
-const axios = require('axios');
+Sentry.init({
+  dsn:
+    'https://d68f2e461ec74fe7a076119faf47348c@o409422.ingest.sentry.io/5283934',
+});
 
-const targetUrl = 'htts://soundcloud.com/staysolidrocky/party-girl1';
-
-const scrapper = async () => {
+const scraper = async (targetUrl) => {
   try {
-    const response = await axiosfetch(targetUrl, {
+    if (targetUrl.substring(0, 4) !== 'http') {
+      targetUrl = 'http://' + targetUrl;
+    }
+
+    const response = await axios(targetUrl, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/77.0.1',
       },
+      maxContentLength: 10000,
     });
     const url = response.request.res.responseUrl;
     const html = response.data;
     const metadata = await metascraper({ html, url });
-    console.log(metadata);
+    return metadata;
   } catch (error) {
     if (error.response) {
       // Request made and server responded
       const { status, statusText } = error.response;
-      createError(status, statusText);
+      throw createError(status, statusText);
     } else if (error.request) {
       // The request was made but no response was received
-      console.log(error.request);
+      if (error.message === 'maxContentLength size of 10000 exceeded') {
+        throw createError(413, 'Maximum file size exceeded');
+      } else if (error.code === 'ENOTFOUND') {
+        throw createError(404, 'Not found');
+      } else if (error.code === 'ECONNREFUSED') {
+        throw createError(400, 'Connection refused');
+      } else {
+        throw createError(408, 'Request timeout');
+      }
     } else {
       // Something happened in setting up the request that triggered an Error
-      // createError(500, 'Internal Server Error')
-      console.log('Error', error.message);
+
+      // Only capture for internal server error
+      Sentry.captureException(error);
+      await Sentry.flush(2000);
+
+      const statusText =
+        process.env.NODE_ENV === 'production'
+          ? 'Internal server error'
+          : error.message;
+
+      throw createError(500, statusText);
     }
   }
 };
 
-scrapper();
-
-// only accept html web pages
+module.exports = scraper;
