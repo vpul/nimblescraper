@@ -42,7 +42,7 @@ const scraper = async (targetUrl) => {
         'User-Agent':
           'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/77.0.1',
       },
-      maxContentLength: 10000,
+      maxContentLength: 10000000, // 10 mb
     });
     const url = response.request.res.responseUrl;
     const html = response.data;
