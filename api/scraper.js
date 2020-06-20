@@ -49,6 +49,9 @@ const scraper = async (targetUrl) => {
     const metadata = await metascraper({ html, url });
     return metadata;
   } catch (error) {
+    Sentry.captureException(error);
+    await Sentry.flush(2000);
+
     if (error.response) {
       // Request made and server responded
       const { status, statusText } = error.response;
@@ -66,11 +69,6 @@ const scraper = async (targetUrl) => {
       }
     } else {
       // Something happened in setting up the request that triggered an Error
-
-      // Only capture for internal server error
-      Sentry.captureException(error);
-      await Sentry.flush(2000);
-
       const statusText =
         process.env.NODE_ENV === 'production'
           ? 'Internal server error'
