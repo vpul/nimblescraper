@@ -10,6 +10,13 @@ Sentry.init({
 
 module.exports = async (req, res) => {
   try {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      req.headers['x-rapidapi-proxy-secret'] !== process.env.RapidAPISecret
+    ) {
+      throw createError(401, 'Unauthorized');
+    }
+
     const { url } = req.query;
     if (url && isURL(url)) {
       const extractedData = await scraper(url);
