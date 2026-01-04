@@ -1,11 +1,11 @@
 const { memoizeOne } = require('@metascraper/helpers');
-const Readability = require('readability');
+const { Readability } = require('readability');
 const jsdom = require('jsdom');
 
 const { JSDOM, VirtualConsole } = jsdom;
 
 const readabilityScraper = () => {
-  const composeRule = (fn) => ({ from, to = from, ...opts }) => async ({
+  const composeRule = (fn) => ({ from }) => async ({
     htmlDom,
     url,
   }) => {
@@ -13,6 +13,7 @@ const readabilityScraper = () => {
     if (data) {
       return data[from];
     }
+    return undefined;
   };
 
   const readability = memoizeOne(($, url) => {

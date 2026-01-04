@@ -8,7 +8,6 @@ const metascraper = require('metascraper')([
   require('metascraper-description')(),
   require('metascraper-image')(),
   require('metascraper-logo')(),
-  require('metascraper-clearbit')(),
   require('metascraper-publisher')(),
   require('metascraper-title')(),
   require('metascraper-url')(),
@@ -34,7 +33,7 @@ Sentry.init({
 const scraper = async (targetUrl) => {
   try {
     if (targetUrl.substring(0, 4) !== 'http') {
-      targetUrl = 'http://' + targetUrl;
+      targetUrl = `http://${targetUrl}`;
     }
 
     const response = await axios(targetUrl, {
@@ -75,10 +74,9 @@ const scraper = async (targetUrl) => {
       }
     } else {
       // Something happened in setting up the request that triggered an Error
-      const statusText =
-        process.env.NODE_ENV === 'production'
-          ? 'Internal server error'
-          : error.message;
+      const statusText = process.env.NODE_ENV === 'production'
+        ? 'Internal server error'
+        : error.message;
 
       throw createError(500, statusText);
     }

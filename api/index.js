@@ -11,8 +11,8 @@ Sentry.init({
 module.exports = async (req, res) => {
   try {
     if (
-      process.env.NODE_ENV === 'production' &&
-      req.headers['x-rapidapi-proxy-secret'] !== process.env.RapidAPISecret
+      process.env.NODE_ENV === 'production'
+      && req.headers['x-rapidapi-proxy-secret'] !== process.env.RapidAPISecret
     ) {
       throw createError(401, 'Unauthorized');
     }
@@ -33,10 +33,9 @@ module.exports = async (req, res) => {
       Sentry.captureException(error);
       await Sentry.flush(2000);
 
-      error.message =
-        process.env.NODE_ENV === 'production'
-          ? 'Internal server error'
-          : error.message;
+      error.message = process.env.NODE_ENV === 'production'
+        ? 'Internal server error'
+        : error.message;
     }
     res.status(error.status || 500).json({
       status: 'error',
